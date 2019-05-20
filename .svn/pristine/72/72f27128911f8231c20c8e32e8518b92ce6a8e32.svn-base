@@ -1,0 +1,185 @@
+package kolekce;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author Tomáš Vondra
+ * @param <E>
+ */
+public class AbstrHeap<E> implements AbstrHeapInterface<E> {
+
+    private static final int DEFAULTNI_VELIKOST = 15;
+
+    private final Comparator<E> comparator;
+    private E[] prvky;
+    private int velikost;
+    private int pocetPrvku;
+
+    public AbstrHeap(Comparator<E> comparator) {
+        this(comparator, DEFAULTNI_VELIKOST);
+    }
+
+    public AbstrHeap(Comparator<E> comparator, int velikost) {
+        this.comparator = comparator;
+        prvky = (E[]) new Object[velikost];
+        this.velikost = velikost;
+        pocetPrvku = 0;
+    }
+
+    @Override
+    public void vybuduj(E[] items) {
+        prvky = (E[]) new Object[items.length];
+
+        System.arraycopy(items, 0, prvky, 0, items.length);
+        velikost = items.length;
+        pocetPrvku = items.length;
+
+        prebuduj();
+    }
+
+    @Override
+    public void prebuduj() {
+        for (int pozice = (pocetPrvku / 2); pozice >= 0; pozice--) {
+            prebuduj(pozice);
+        }
+    }
+
+    @Override
+    public void zrus() {
+        prvky = (E[]) new Object[DEFAULTNI_VELIKOST];
+        velikost = DEFAULTNI_VELIKOST;
+        pocetPrvku = 0;
+    }
+
+    @Override
+    public boolean jePrazdny() {
+        return pocetPrvku == 0;
+    }
+
+    @Override
+    public void vloz(E item) {
+        if (pocetPrvku >= velikost) {
+            zvetsiPole();
+        }
+
+        int aktualni = pocetPrvku;
+        prvky[pocetPrvku++] = item;
+
+        if (pocetPrvku > 1) {
+            while (comparator.compare(prvky[aktualni], prvky[poziceRodice(aktualni)]) < 0) {
+                prohod(aktualni, poziceRodice(aktualni));
+                aktualni = poziceRodice(aktualni);
+            }
+        }
+
+    }
+
+    @Override
+    public E odeberMax() throws KolekceException {
+        if (pocetPrvku == 0) {
+            throw new KolekceException("Prázdná halda");
+        }
+
+        E prvek = prvky[0];
+        prvky[0] = prvky[pocetPrvku - 1];
+        pocetPrvku--;
+        prebuduj(0);
+        return prvek;
+    }
+
+    @Override
+    public E zpristupniMax() throws KolekceException {
+        if (pocetPrvku == 0) {
+            throw new KolekceException("Prázdná halda");
+        }
+
+        return prvky[0];
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new BreathIterator();
+    }
+
+    private void zvetsiPole() {
+        E[] temp = (E[]) new Object[velikost * 2];
+        System.arraycopy(prvky, 0, temp, 0, pocetPrvku);
+        prvky = temp;
+    }
+
+    private void prohod(int pozice1, int pozice2) {
+        E temp;
+        temp = prvky[pozice1];
+        prvky[pozice1] = prvky[pozice2];
+        prvky[pozice2] = temp;
+    }
+
+    private int poziceRodice(int pozice) {
+        return (pozice / 2);
+    }
+
+    private int poziceLevehoDitete(int pozice) {
+        return (pozice * 2);
+    }
+
+    private int pozicePravehoDitete(int pozice) {
+        return poziceLevehoDitete(pozice) + 1;
+    }
+
+    private boolean jeList(int pozice) {
+        return pozice >= (pocetPrvku / 2) && pozice <= pocetPrvku;
+    }
+
+    private void prebuduj(int pozice) {
+        // If the node is a non-leaf node and greater 
+        // than any of its child 
+        int poziceNejmensihoPrvku = pozice;
+        if (!jeList(pozice)) {
+            if (poziceLevehoDitete(pozice) < pocetPrvku
+                    && comparator.compare(prvky[pozice], prvky[poziceLevehoDitete(pozice)]) >= 0) {
+                poziceNejmensihoPrvku = poziceLevehoDitete(pozice);
+            }
+            if (pozicePravehoDitete(pozice) < pocetPrvku
+                    && comparator.compare(prvky[pozice], prvky[pozicePravehoDitete(pozice)]) >= 0) {
+                poziceNejmensihoPrvku = pozicePravehoDitete(pozice);
+            }
+
+            if (poziceNejmensihoPrvku != pozice) {
+                prohod(pozice, poziceNejmensihoPrvku);
+                prebuduj(poziceNejmensihoPrvku);
+            }
+        }
+    }
+    
+    private class BreathIterator implements Iterator<E> {
+
+        private AbstrFIFOInterface<E> fronta = null;
+        private int current;
+
+        public BreathIterator() {
+
+            try {
+                fronta = new AbstrFIFO<>();
+                if (prvky[0] != null) {
+                    fronta.vloz(prvky[0]);
+                }
+            } catch (KolekceException ex) {
+                Logger.getLogger(AbstrHeap.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !fronta.jePrazdny();
+        }
+
+        @Override
+        public E next() {
+            return prvky[current++];
+        }
+    }
+}

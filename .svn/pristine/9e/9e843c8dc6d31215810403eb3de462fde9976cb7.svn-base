@@ -1,0 +1,128 @@
+package kolekce;
+
+import java.util.Comparator;
+import java.util.Iterator;
+
+/**
+ *
+ * @author Tomáš Vondra
+ * @param <E>
+ */
+public class AbstrHeap<E> implements AbstrHeapInterface<E> {
+
+    private static final int DEFAULTNI_VELIKOST = 15;
+
+    private final Comparator<E> comparator;
+    private E[] prvky;
+    private int velikost;
+    private int pocetPrvku;
+
+    public AbstrHeap(Comparator<E> comparator) {
+        this(comparator, DEFAULTNI_VELIKOST);
+    }
+
+    public AbstrHeap(Comparator<E> comparator, int velikost) {
+        this.comparator = comparator;
+        prvky = (E[]) new Object[velikost];
+        this.velikost = velikost;
+        pocetPrvku = 0;
+    }
+
+    @Override
+    public void vybuduj(E[] items) {
+        prvky = (E[]) new Object[items.length];
+
+        System.arraycopy(items, 0, prvky, 0, items.length);
+        velikost = items.length;
+        pocetPrvku = items.length;
+
+        prebuduj();
+    }
+
+    @Override
+    public void prebuduj() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void zrus() {
+        prvky = (E[]) new Object[DEFAULTNI_VELIKOST];
+        velikost = DEFAULTNI_VELIKOST;
+        pocetPrvku = 0;
+    }
+
+    @Override
+    public boolean jePrazdny() {
+        return pocetPrvku == 0;
+    }
+
+    @Override
+    public void vloz(E item) {
+        if (pocetPrvku >= velikost) {
+            zvetsiPole();
+        }
+
+        int aktualni = pocetPrvku;
+        prvky[pocetPrvku++] = item;
+
+        if (pocetPrvku > 1) {
+            while (comparator.compare(prvky[aktualni], prvky[poziceRodice(aktualni)]) < 0) {
+                prohod(aktualni, poziceRodice(aktualni));
+                aktualni = poziceRodice(aktualni);
+            }
+        }
+
+    }
+
+    @Override
+    public E odeberMax() throws KolekceException {
+        if (pocetPrvku == 0) {
+            throw new KolekceException("Prázdná halda");
+        }
+        return null;
+    }
+
+    @Override
+    public E zpristupniMax() throws KolekceException {
+        if (pocetPrvku == 0) {
+            throw new KolekceException("Prázdná halda");
+        }
+
+        return prvky[0];
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void zvetsiPole() {
+        E[] temp = (E[]) new Object[velikost * 2];
+        System.arraycopy(prvky, 0, temp, 0, pocetPrvku);
+        prvky = temp;
+    }
+
+    private void prohod(int pozice1, int pozice2) {
+        E temp;
+        temp = prvky[pozice1];
+        prvky[pozice1] = prvky[pozice2];
+        prvky[pozice2] = temp;
+    }
+
+    private int poziceRodice(int pozice) {
+        return pozice / 2;
+    }
+
+    private int poziceLevehoDitete(int pozice) {
+        return (pozice * 2);
+    }
+
+    private int pozicePravehoDitete(int pozice) {
+        return (poziceLevehoDitete(pozice) + 1);
+    }
+
+    private boolean jeList(int pozice) {
+        return pozice >= (velikost / 2) && pozice <= velikost;
+    }
+
+}

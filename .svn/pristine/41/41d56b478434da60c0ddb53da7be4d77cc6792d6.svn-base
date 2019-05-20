@@ -1,0 +1,242 @@
+package kolekce;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import pamatky.Pamatky;
+import pamatky.PamatkyInterface;
+import pamatky.Zamek;
+import pamatky.ZamekVzdalenostComparator;
+
+/**
+ *
+ * @author user
+ */
+public class AbstrHeapTest {
+
+    private Zamek zamek1;
+    private Zamek zamek2;
+    private Zamek zamek3;
+
+    AbstrHeapInterface<Zamek> heap;
+
+    public AbstrHeapTest() {
+    }
+
+    @BeforeClass
+    public static void setUpClass() {
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+        heap = new AbstrHeap<>(new ZamekVzdalenostComparator());
+
+        zamek1 = new Zamek(1, "Petrovice", "N49 33.3690 E014 20.1690"); //2
+        zamek2 = new Zamek(1, "Velke Viselky", "N50 22.7895 E014 44.6632"); //1
+        zamek3 = new Zamek(1, "Dolni Kounice", "N49 03.9274 E016 28.4618"); //3
+    }
+
+    @After
+    public void tearDown() {
+    }
+
+    /**
+     * Test of vybuduj method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testVybuduj() throws KolekceException {
+        assertTrue(heap.jePrazdny());
+        heap.vybuduj(new Zamek[]{zamek1, zamek2, zamek3});
+        assertFalse(heap.jePrazdny());
+
+        assertEquals(zamek2, heap.odeberMax());
+        assertEquals(zamek1, heap.odeberMax());
+        assertEquals(zamek3, heap.odeberMax());
+        assertTrue(heap.jePrazdny());
+
+        heap.vybuduj(new Zamek[]{zamek2, zamek3, zamek1});
+        assertEquals(zamek2, heap.odeberMax());
+        assertEquals(zamek1, heap.odeberMax());
+        assertEquals(zamek3, heap.odeberMax());
+    }
+
+    /**
+     * Test of prebuduj method, of class AbstrHeap.
+     */
+    @Test
+    public void testPrebuduj() {
+        System.out.println("prebuduj");
+    }
+
+    /**
+     * Test of zrus method, of class AbstrHeap.
+     */
+    @Test
+    public void testZrus() {
+        System.out.println("zrus");
+        assertTrue(heap.jePrazdny());
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+
+        heap.vloz(zamek1);
+        assertFalse(heap.jePrazdny());
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+    }
+
+    /**
+     * Test of jePrazdny method, of class AbstrHeap.
+     *
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testJePrazdny() throws KolekceException {
+        System.out.println("jePrazdny");
+
+        assertTrue(heap.jePrazdny());
+
+        heap.vloz(zamek1);
+        assertFalse(heap.jePrazdny());
+
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+
+        heap.vloz(zamek1);
+        heap.odeberMax();
+        assertTrue(heap.jePrazdny());
+    }
+
+    /**
+     * Test of vloz method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testVloz() throws KolekceException {
+        System.out.println("vloz");
+
+        assertTrue(heap.jePrazdny());
+
+        heap.vloz(zamek1);
+        heap.vloz(zamek2);
+        heap.vloz(zamek3);
+        assertFalse(heap.jePrazdny());
+
+        assertEquals(zamek2, heap.odeberMax());
+        assertEquals(zamek1, heap.odeberMax());
+        assertEquals(zamek3, heap.odeberMax());
+
+    }
+
+    /**
+     * Test of odeberMax method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testOdeberMax() throws KolekceException {
+        System.out.println("odeberMax");
+        
+        heap.vloz(zamek1);
+        heap.vloz(zamek2);
+        heap.vloz(zamek3);
+        assertFalse(heap.jePrazdny());
+
+        assertEquals(zamek2, heap.odeberMax());
+        assertEquals(zamek1, heap.odeberMax());
+        assertEquals(zamek3, heap.odeberMax());
+    }
+    
+    @Test(expected = KolekceException.class)
+    public void testOdeberMax_Exception() throws KolekceException {
+        System.out.println("odeberMax");
+        
+        assertTrue(heap.jePrazdny());
+        heap.odeberMax();
+        
+        fail();
+    }
+
+    /**
+     * Test of zpristupniMax method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testZpristupniMax() throws KolekceException {
+        System.out.println("zpristupniMax");
+        
+        heap.vloz(zamek1);
+        heap.vloz(zamek2);
+        heap.vloz(zamek3);
+        assertFalse(heap.jePrazdny());
+
+        assertEquals(zamek2, heap.zpristupniMax());        
+        heap.odeberMax();
+        assertEquals(zamek1, heap.zpristupniMax());
+
+    }
+
+    /**
+     * Test of iterator method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testIterator() throws KolekceException {
+        PamatkyInterface pamatky = new Pamatky();
+        pamatky.vybuduj(new Zamek[] {zamek1, zamek2, zamek3 });
+        Iterator iterator = pamatky.iterator();
+        
+        assertEquals(zamek2, iterator.next());
+        assertEquals(zamek1, iterator.next());
+        assertEquals(zamek3, iterator.next());
+    }
+    
+     @Test
+    public void testImportDat_Iterator() throws KolekceException, IOException {
+         PamatkyInterface pamatky = new Pamatky();
+         pamatky.importDatZTXT();
+         
+         Iterator iterator = pamatky.iterator();
+         while(iterator.hasNext()){
+             System.out.println(iterator.next());
+         }
+    }
+    
+    @Test
+    public void testIterator_02() throws KolekceException{
+        PamatkyInterface pamatky = new Pamatky();
+        pamatky.vybuduj(new Zamek[] {zamek1, zamek2 });
+        Iterator iterator = pamatky.iterator();
+        
+        assertEquals(zamek2, iterator.next());
+        assertEquals(zamek1, iterator.next());
+    }
+    
+    @Test
+    public void testIterator_03() throws KolekceException{
+        PamatkyInterface pamatky = new Pamatky();
+        pamatky.vybuduj(new Zamek[] {zamek1 });
+        Iterator iterator = pamatky.iterator();
+        
+        assertEquals(zamek1, iterator.next());
+    }
+    
+    @Test(expected = NoSuchElementException.class)
+    public void testIterator_04() throws KolekceException{
+        PamatkyInterface pamatky = new Pamatky();
+        Iterator iterator = pamatky.iterator();
+        
+        iterator.next();
+        fail();
+    }
+
+}

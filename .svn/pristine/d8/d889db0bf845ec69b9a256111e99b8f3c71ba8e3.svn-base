@@ -1,0 +1,68 @@
+package pamatky;
+
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ *
+ * @author Tomáš Vondra
+ */
+public class ZamekVzdalenostComparator implements Comparator<Zamek> {
+
+    private static final int ZEME_KILOMETRY = 6371;
+    private static final String MOJE_LOKACE = "N50 01.9766 E15 45.9833";
+            
+    @Override
+    public int compare(Zamek zamek1, Zamek zamek2) {
+        double vzdalenostZamek1 = getVzdalenost(MOJE_LOKACE, zamek1.getGps());
+        double vzdalenostZamek2 = getVzdalenost(MOJE_LOKACE, zamek2.getGps());
+
+        return Double.compare(vzdalenostZamek1, vzdalenostZamek2);
+    }
+
+    public double getVzdalenost(String lokace1, String lokace2) {
+        Pattern p = Pattern.compile("\\d\\d \\d\\d.\\d\\d\\d\\d", Pattern.MULTILINE);
+        Matcher m1 = p.matcher(lokace1);
+        Matcher m2 = p.matcher(lokace2);
+        
+        m1.find();
+        String lat1DMM = m1.group();
+        m1.find();
+        String lon1DMM = m1.group();
+        m2.find();
+        String lat2DMM = m2.group();
+        m2.find();
+        String lon2DMM = m2.group();
+
+        double lat1 = getDD(lat1DMM);
+        double lon1 = getDD(lon1DMM);
+        double lat2 = getDD(lat2DMM);
+        double lon2 = getDD(lon2DMM);
+
+        double rozdilLat = stupneNaRadiany(lat2 - lat1);
+        double rozdilLon = stupneNaRadiany(lon2 - lon1);
+
+        lat1 = stupneNaRadiany(lat1);
+        lat2 = stupneNaRadiany(lat2);
+
+        double a = Math.sin(rozdilLat / 2) * Math.sin(rozdilLat / 2)
+                + Math.sin(rozdilLon / 2) * Math.sin(rozdilLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return (int)(ZEME_KILOMETRY * c);
+
+    }
+
+    private double getDD(String dmmFormat) {
+        String[] split = dmmFormat.split(" ");
+        int degrees = Integer.parseInt(split[0]);
+        double minutes = Double.parseDouble(split[1]);
+
+        return degrees + (minutes / 60);
+    }
+
+    private double stupneNaRadiany(double stupne) {
+        return stupne * Math.PI / 180;
+    }
+
+}

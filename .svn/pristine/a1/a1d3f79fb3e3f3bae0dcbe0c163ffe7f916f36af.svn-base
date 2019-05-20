@@ -1,0 +1,145 @@
+package kolekce;
+
+import java.util.Iterator;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import pamatky.Zamek;
+import pamatky.ZamekVzdalenostComparator;
+
+/**
+ *
+ * @author user
+ */
+public class AbstrHeapTest {
+    
+    private Zamek zamek1;
+    private Zamek zamek2;
+    private Zamek zamek3;
+    
+    
+    AbstrHeapInterface<Zamek> heap;
+    public AbstrHeapTest() {
+    }
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+    }
+    
+    @Before
+    public void setUp() {
+        heap = new AbstrHeap<>(new ZamekVzdalenostComparator());
+        
+        zamek1 = new Zamek(1, "Petrovice", "N49 33.3690 E014 20.1690");
+        zamek2 = new Zamek(1, "Velke Viselky", "N50 22.7895 E014 44.6632");
+        zamek3 = new Zamek(1, "Dolni Kounice", "N49 03.9274 E016 28.4618");
+    }
+    
+    @After
+    public void tearDown() {
+    }
+
+    /**
+     * Test of vybuduj method, of class AbstrHeap.
+     */
+    @Test
+    public void testVybuduj() {
+        System.out.println("vybuduj");
+    }
+
+    /**
+     * Test of prebuduj method, of class AbstrHeap.
+     */
+    @Test
+    public void testPrebuduj() {
+        System.out.println("prebuduj");
+    }
+
+    /**
+     * Test of zrus method, of class AbstrHeap.
+     */
+    @Test
+    public void testZrus() {
+        System.out.println("zrus");
+        assertTrue(heap.jePrazdny());
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+        
+        heap.vloz(zamek1);
+        assertFalse(heap.jePrazdny());
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+    }
+
+    /**
+     * Test of jePrazdny method, of class AbstrHeap.
+     * @throws kolekce.KolekceException
+     */
+    @Test
+    public void testJePrazdny() throws KolekceException {
+        System.out.println("jePrazdny");
+        
+        assertTrue(heap.jePrazdny());
+        
+        heap.vloz(zamek1);
+        assertFalse(heap.jePrazdny());
+        
+        heap.zrus();
+        assertTrue(heap.jePrazdny());
+        
+        heap.vloz(zamek1);
+        heap.odeberMax();
+        assertTrue(heap.jePrazdny());
+    }
+
+    /**
+     * Test of vloz method, of class AbstrHeap.
+     */
+    @Test
+    public void testVloz() {
+        System.out.println("vloz");
+        
+        assertTrue(heap.jePrazdny());
+        
+        heap.vloz(zamek1);
+        heap.vloz(zamek2);
+        heap.vloz(zamek3);        
+        assertFalse(heap.jePrazdny());
+
+    }
+
+    /**
+     * Test of odeberMax method, of class AbstrHeap.
+     */
+    @Test
+    public void testOdeberMax() throws KolekceException {
+        System.out.println("odeberMax");
+    }
+
+    /**
+     * Test of zpristupniMax method, of class AbstrHeap.
+     */
+    @Test
+    public void testZpristupniMax() throws KolekceException {
+        System.out.println("zpristupniMax");
+
+    }
+
+    /**
+     * Test of iterator method, of class AbstrHeap.
+     */
+    @Test
+    public void testIterator() {
+        System.out.println("iterator");
+        ZamekVzdalenostComparator test = new ZamekVzdalenostComparator();
+        test.getVzdalenost("N49 16.0694 E014 00.1145", "N49 32.8927 E017 02.2532");
+    }
+    
+}
